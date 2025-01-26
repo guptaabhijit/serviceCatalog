@@ -1,0 +1,13 @@
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: servicecatalog
+  sslmode: disable
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: "1h"
+
+server:
+  port: 8080

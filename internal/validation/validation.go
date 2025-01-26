@@ -2,7 +2,6 @@ package validation
 
 import (
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type ServiceError struct {
@@ -11,22 +10,18 @@ type ServiceError struct {
 	Details string `json:"details,omitempty"`
 }
 
-func ValidateServiceID(c *gin.Context) (uint64, *ServiceError) {
-	id := c.Param("id")
-	if id == "" {
-		return 0, &ServiceError{
-			Status:  400,
-			Message: "service ID is required",
-		}
-	}
+type ServiceIDParam struct {
+	ID uint64 `uri:"id" binding:"required,min=1"`
+}
 
-	serviceID, err := strconv.ParseUint(id, 10, 32)
-	if err != nil {
+func ValidateServiceID(c *gin.Context) (uint64, *ServiceError) {
+	var param ServiceIDParam
+	if err := c.ShouldBindUri(&param); err != nil {
 		return 0, &ServiceError{
 			Status:  400,
 			Message: "Invalid service ID: must be a positive integer",
 			Details: err.Error(),
 		}
 	}
-	return serviceID, nil
+	return param.ID, nil
 }
