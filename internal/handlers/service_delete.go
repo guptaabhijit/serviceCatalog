@@ -9,42 +9,45 @@ import (
 	"serviceCatalog/internal/validation"
 )
 
-// GetServiceVersions handles GET /services/:id/versions endpoint.
+// DeleteService handles DELETE /services/:id endpoint.
 //
-// Retrieves all versions associated with a service.
-// Returns versions in chronological order.
+// Performs soft deletion of a service and its associated versions.
+// Uses GORM's soft delete mechanism to maintain data history.
 //
 // URL Parameters:
-//   - id (uint): Service ID
+//   - id (uint): Service ID to delete
 //
 // Returns:
 //
-//	200: []Version - List of service versions
+//	204: Service successfully deleted
 //	400: Invalid service ID
-//	500: Database error
+//	500: Deletion failed
+//
+// Notes:
+//   - Service is soft-deleted by default
+//   - Associated versions are also soft-deleted via foreign key
 //
 // Example:
 //
-//	GET /services/1/versions
-func (h *Handler) GetServiceVersions(c *gin.Context) {
+//	DELETE /services/1
+func (h *Handler) DeleteService(c *gin.Context) {
 	serviceID, validationErr := validation.ValidateServiceID(c)
 	if validationErr != nil {
 		c.JSON(validationErr.Status, validationErr)
 		return
 	}
 
-	var versions []models.Version
-	result := h.db.Where("service_id = ?", serviceID).Find(&versions)
-
+	result := h.db.Delete(&models.Service{}, serviceID)
 	if result.Error != nil {
 
 		c.JSON(http.StatusInternalServerError, &constants.ServiceError{
 			Status:  constants.StatusInternalServerError,
-			Message: constants.ErrVersionFetchFailed,
+			Message: constants.ErrServiceDeleteFailed,
 			Details: result.Error.Error(),
 		})
+
 		return
 	}
 
-	c.JSON(http.StatusOK, versions)
+	c.Status(http.StatusNoContent)
 }

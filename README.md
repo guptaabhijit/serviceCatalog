@@ -49,7 +49,7 @@ A RESTful API service for managing service catalog information. Built with Go, G
 - **Assumptions**:
   - Database Choice: We have not set up a scalable RDS (Relational Database Service) and are using PostgreSQL for its advanced features and reliability. 
   - Authentication: Authentication and authorization are not implemented in this iteration but will be added in the future.
-  - Scalability: The current implementation focuses on core functionality. Scalability improvements (e.g., caching, connection pooling) will be addressed in future iterations.
+  - Scalability: The current implementation focuses on core functionality. Scalability improvements (e.g., caching) will be addressed in future iterations.
 
 ## Implementation Details
 - Database Schema: The database includes tables for services and versions, with a one-to-many relationship between them.
@@ -102,6 +102,7 @@ pageSize: int (default: 10)
 search: string
 sortBy: string (id, name, description)
 sortDir: string (asc, desc)
+showDeleted: bool (true)
 ```
 
 Success Response (200 OK):
@@ -136,19 +137,25 @@ Success Response (200 OK):
 ```
 
 Error Responses:
-```json
-// 400 Bad Request
-{
-    "error": "Invalid service ID: must be a positive integer",
-    "details": "strconv.ParseUint: parsing \"abc\": invalid syntax"
-}
 
-// 404 Not Found
+#### 400 Bad Request
+```json
 {
-    "error": "Service not found",
-    "service_id": 999
+  "status": 400,
+  "message": "Invalid service ID: must be a positive integer",
+  "details": "strconv.ParseUint: parsing \"abc\": invalid syntax"
 }
 ```
+
+#### 404 Not Found
+```json
+{
+  "status": 404,
+  "message": "service not found",
+  "details": "record not found"
+}
+```
+
 
 ### 3. Get Service Versions
 
@@ -168,6 +175,14 @@ Success Response (200 OK):
 }
 ```
 
+### 4. DELETE Service 
+
+DELETE /services/:id/
+
+Success Response (204 OK):
+```json
+```
+
 ## Project Structure
 
 ```
@@ -177,19 +192,27 @@ servicecatalog/
 │       └── main.go
 ├── config/
 │   ├── config.go
+│   ├── logger.go
 │   └── config.yaml
 ├── internal/
+│   ├── constants/
+│   │   ├── constants.go
+│   │   ├── error_code.go
+│   │   └── errors.go
 │   ├── database/
 │   │   ├── setup.sql
 │   │   ├── test_setup.sql
 │   │   └── database.go
 │   ├── handlers/
 │   │   ├── handlers.go
+│   │   ├── handlers_test.go
 │   │   ├── service_get.go
 │   │   ├── service_list.go
 │   │   ├── service_versions.go
 │   │   ├── types.go
-│   │   └── handlers_test.go
+│   │   └── service_delete.go
+│   ├── middleware/
+│   │   ├── logger.go
 │   ├── models/
 │   │   ├── models.go
 │   │   ├── models_test.go
@@ -226,9 +249,8 @@ go run cmd/api/main.go
 
 Run all tests:
 ```bash
-psql -U postgres -f db/test_setup.sql
+psql -U postgres -f internal/database/test_setup.sql
 go test ./... -v
-go test ./...
 ```
 
 ## Performance Considerations
@@ -263,7 +285,8 @@ The API uses standard HTTP status codes:
 All error responses follow the format:
 ```json
 {
-    "error": "Error message",
+    "status": 400,
+    "message": "Error message",
     "details": "Additional error details (optional)"
 }
 ```

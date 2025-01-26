@@ -10,9 +10,10 @@ type ListServicesResponse struct {
 }
 
 type QueryParams struct {
-	Page     int    `form:"page,default=1"`
-	PageSize int    `form:"pageSize,default=10"`
-	Search   string `form:"search"`
-	SortBy   string `form:"sortBy,default=id"`
-	SortDir  string `form:"sortDir,default=asc"`
+	Page        int    `form:"page,default=1"`
+	PageSize    int    `form:"pageSize,default=10"`
+	Search      string `form:"search"`
+	SortBy      string `form:"sortBy,default=id"`
+	SortDir     string `form:"sortDir,default=asc"`
+	ShowDeleted string `form:"showDeleted"`
 }

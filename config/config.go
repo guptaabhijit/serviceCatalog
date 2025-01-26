@@ -51,10 +51,3 @@ func (d *DatabaseConfig) DSN() string {
 	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s",
 		d.Host, d.User, d.Password, d.DBName, d.Port, d.SSLMode)
 }
-
-//
-//func InitLogger() {
-//	logrus.SetFormatter(&logrus.JSONFormatter{})
-//	logrus.SetOutput(os.Stdout)
-//	logrus.SetLevel(logrus.InfoLevel)
-//}

@@ -70,3 +70,11 @@ INSERT INTO versions (id, service_id, number) VALUES
                                                   (26, 9, '2.0.0'),
                                                   (27, 10, '1.0.0'),
                                                   (28, 10, '1.1.0');
+
+
+-- Add to migrations or setup.sql
+ALTER TABLE services ADD COLUMN deleted_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE versions ADD COLUMN deleted_at TIMESTAMP WITH TIME ZONE;
+
+CREATE INDEX idx_services_deleted_at ON services(deleted_at);
+CREATE INDEX idx_versions_deleted_at ON versions(deleted_at);

@@ -42,5 +42,6 @@ func setupRouter(h *handlers.Handler) *gin.Engine {
 	r.GET("/services", h.ListServices)
 	r.GET("/services/:id", h.GetService)
 	r.GET("/services/:id/versions", h.GetServiceVersions)
+	r.DELETE("/services/:id", h.DeleteService)
 	return r
 }
